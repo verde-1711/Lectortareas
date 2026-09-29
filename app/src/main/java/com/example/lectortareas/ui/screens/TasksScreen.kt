@@ -7,21 +7,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -42,7 +38,8 @@ import com.example.lectortareas.data.SharedTask
 import com.example.lectortareas.data.TasksResolver
 import com.example.lectortareas.ui.components.EmptyTasksView
 import com.example.lectortareas.ui.components.PermissionCard
-import com.example.lectortareas.ui.components.TaskCard
+import com.example.lectortareas.ui.components.TaskBottomNavigation
+import com.example.lectortareas.ui.components.TaskListContent
 import com.example.lectortareas.ui.theme.AppColors
 
 @Composable
@@ -55,6 +52,7 @@ fun TasksScreen() {
     var isLoading by remember { mutableStateOf(false) }
     var reloadKey by remember { mutableIntStateOf(0) }
     var selectedId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     var deniedForGood by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -96,40 +94,87 @@ fun TasksScreen() {
         )
     }
 
+    fun onPermissionButtonClick() {
+        if (hasPermission || deniedForGood) {
+            openAppSettings()
+        } else {
+            permissionLauncher.launch(TasksResolver.READ_PERMISSION)
+        }
+    }
+
     val currentResult = result
     val tasks = currentResult?.getOrNull()
     val selectedTask = tasks?.firstOrNull { it.id == selectedId }
 
+    // La lista se lee una sola vez; cada pestaña la filtra según el campo completed
+    val allTasks = tasks.orEmpty()
+    val pendingTasks = remember(allTasks) { allTasks.filter { it.completed == false } }
+    val completedTasks = remember(allTasks) { allTasks.filter { it.completed == true } }
+
+    val showTabs = hasPermission && currentResult?.isSuccess == true
+
     if (selectedTask != null) {
         BackHandler { selectedId = null }
         TaskDetailScreen(task = selectedTask, onBack = { selectedId = null })
+    } else if (showTabs) {
+        Scaffold(
+            containerColor = AppColors.Background,
+            bottomBar = {
+                TaskBottomNavigation(
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it }
+                )
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+            ) {
+                TasksHeader(
+                    hasPermission = hasPermission,
+                    onPermissionButtonClick = { onPermissionButtonClick() }
+                )
+
+                when (selectedTab) {
+                    0 -> TaskListContent(
+                        title = "Todas",
+                        tasks = allTasks,
+                        emptyMessage = "No tiene tareas guardadas.",
+                        onViewTask = { selectedId = it.id },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    1 -> TaskListContent(
+                        title = "Pendientes",
+                        tasks = pendingTasks,
+                        emptyMessage = "No tienes tareas pendientes",
+                        onViewTask = { selectedId = it.id },
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    else -> TaskListContent(
+                        title = "Completadas",
+                        tasks = completedTasks,
+                        emptyMessage = "No tienes tareas completadas",
+                        onViewTask = { selectedId = it.id },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
     } else {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
-                .navigationBarsPadding()
                 .padding(horizontal = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Lector Tareas",
-                style = MaterialTheme.typography.headlineSmall,
-                color = AppColors.Ink
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PermissionCard(
+            TasksHeader(
                 hasPermission = hasPermission,
-                onButtonClick = {
-                    if (hasPermission || deniedForGood) {
-                        openAppSettings()
-                    } else {
-                        permissionLauncher.launch(TasksResolver.READ_PERMISSION)
-                    }
-                }
+                onPermissionButtonClick = { onPermissionButtonClick() }
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
             when {
                 !hasPermission -> Unit
@@ -159,17 +204,31 @@ fun TasksScreen() {
                     )
                 }
 
-                tasks.isNullOrEmpty() -> EmptyTasksView()
-
-                else -> LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(bottom = 24.dp)
-                ) {
-                    items(tasks, key = { it.id }) { task ->
-                        TaskCard(task = task, onView = { selectedId = task.id })
-                    }
-                }
+                else -> Unit
             }
         }
+    }
+}
+
+/** Título y tarjeta de permiso: quedan fijos arriba en todas las pestañas. */
+@Composable
+private fun TasksHeader(
+    hasPermission: Boolean,
+    onPermissionButtonClick: () -> Unit
+) {
+    Column {
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Lector Tareas",
+            style = MaterialTheme.typography.headlineSmall,
+            color = AppColors.Ink
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        PermissionCard(
+            hasPermission = hasPermission,
+            onButtonClick = onPermissionButtonClick
+        )
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
