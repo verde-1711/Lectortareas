@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +40,7 @@ import com.example.lectortareas.ui.components.PermissionCard
 import com.example.lectortareas.ui.components.TaskBottomNavigation
 import com.example.lectortareas.ui.components.TaskListContent
 import com.example.lectortareas.ui.theme.AppColors
+import com.example.lectortareas.ui.theme.AppTextStyles
 
 @Composable
 fun TasksScreen() {
@@ -141,7 +141,7 @@ fun TasksScreen() {
                     0 -> TaskListContent(
                         title = "Todas",
                         tasks = allTasks,
-                        emptyMessage = "No tiene tareas guardadas.",
+                        emptyMessage = "La app A no tiene tareas guardadas.",
                         onViewTask = { selectedId = it.id },
                         modifier = Modifier.weight(1f)
                     )
@@ -220,7 +220,7 @@ private fun TasksHeader(
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Lector Tareas",
-            style = MaterialTheme.typography.headlineSmall,
+            style = AppTextStyles.ScreenTitle,
             color = AppColors.Ink
         )
         Spacer(modifier = Modifier.height(16.dp))

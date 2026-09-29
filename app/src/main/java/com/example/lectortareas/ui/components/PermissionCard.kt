@@ -10,7 +10,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.lectortareas.ui.theme.AppColors
 import com.example.lectortareas.ui.theme.AppShapes
+import com.example.lectortareas.ui.theme.AppTextStyles
 
 @Composable
 fun PermissionCard(
@@ -54,7 +54,7 @@ fun PermissionCard(
                 } else {
                     "Sin permiso"
                 },
-                style = MaterialTheme.typography.titleSmall,
+                style = AppTextStyles.PermissionTitle,
                 color = contentColor
             )
 
@@ -77,7 +77,7 @@ fun PermissionCard(
                 ) {
                     Text(
                         text = "Quitar permiso",
-                        style = MaterialTheme.typography.labelMedium
+                        style = AppTextStyles.ButtonLabel
                     )
                 }
             } else {
@@ -93,7 +93,7 @@ fun PermissionCard(
                 ) {
                     Text(
                         text = "Pedir permiso",
-                        style = MaterialTheme.typography.labelMedium
+                        style = AppTextStyles.ButtonLabel
                     )
                 }
             }

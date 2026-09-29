@@ -21,7 +21,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.example.lectortareas.data.SharedTask
 import com.example.lectortareas.ui.theme.AppColors
 import com.example.lectortareas.ui.theme.AppShapes
+import com.example.lectortareas.ui.theme.AppTextStyles
 import com.example.lectortareas.ui.utils.DateUtils
 
 @Composable
@@ -75,13 +75,13 @@ fun TaskCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = DateUtils.formatDateTime(task.createdAt),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = AppTextStyles.TaskDateCard,
                     color = AppColors.AccentStrong
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = task.title.ifBlank { "Sin título" },
-                    style = MaterialTheme.typography.titleSmall,
+                    style = AppTextStyles.TaskTitleCard,
                     color = AppColors.Ink,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -101,7 +101,7 @@ fun TaskCard(
                 elevation = null,
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text(text = "Consultar", style = MaterialTheme.typography.labelMedium)
+                Text(text = "Consultar", style = AppTextStyles.ButtonLabel)
             }
         }
     }
