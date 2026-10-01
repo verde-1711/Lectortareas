@@ -37,6 +37,7 @@ import com.example.lectortareas.data.SharedTask
 import com.example.lectortareas.data.TasksResolver
 import com.example.lectortareas.ui.components.EmptyTasksView
 import com.example.lectortareas.ui.components.PermissionCard
+import com.example.lectortareas.ui.components.PermissionNotice
 import com.example.lectortareas.ui.components.TaskBottomNavigation
 import com.example.lectortareas.ui.components.TaskListContent
 import com.example.lectortareas.ui.theme.AppColors
@@ -141,7 +142,7 @@ fun TasksScreen() {
                     0 -> TaskListContent(
                         title = "Todas",
                         tasks = allTasks,
-                        emptyMessage = "La app A no tiene tareas guardadas.",
+                        emptyMessage = "La aplicación de tareas no tiene tareas guardadas.",
                         onViewTask = { selectedId = it.id },
                         modifier = Modifier.weight(1f)
                     )
@@ -177,7 +178,8 @@ fun TasksScreen() {
             )
 
             when {
-                !hasPermission -> Unit
+                !hasPermission -> PermissionNotice()
+
 
                 currentResult == null -> {
                     if (isLoading) {

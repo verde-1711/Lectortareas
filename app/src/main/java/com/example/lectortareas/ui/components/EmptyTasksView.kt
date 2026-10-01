@@ -18,7 +18,7 @@ import com.example.lectortareas.ui.theme.AppTextStyles
 
 @Composable
 fun EmptyTasksView(
-    message: String = "La app A no tiene tareas guardadas.",
+    message: String = "La aplicación de tareas no tiene tareas guardadas.",
     isError: Boolean = false,
     modifier: Modifier = Modifier
 ) {

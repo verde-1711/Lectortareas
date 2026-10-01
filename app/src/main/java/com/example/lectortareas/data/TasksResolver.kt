@@ -20,7 +20,7 @@ object TasksResolver {
             val cursor = context.contentResolver.query(
                 TASKS_URI, null, null, null, "fecha_creacion DESC"
             ) ?: return@withContext Result.failure(
-                IllegalStateException("La app A no está instalada o su provider no responde")
+                IllegalStateException("No se pudo conectar con la aplicación de tareas. Ábrela y vuelve a intentar")
             )
 
             cursor.use { c ->
@@ -48,7 +48,7 @@ object TasksResolver {
             Result.failure(e)
         } catch (e: IllegalArgumentException) {
             Result.failure(
-                IllegalStateException("El provider de la app A no devuelve una columna esperada: ${e.message}")
+                IllegalStateException("La aplicación de tareas no devolvió los datos esperados: ${e.message}")
             )
         }
     }
